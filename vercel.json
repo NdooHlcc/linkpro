@@ -1,8 +1,12 @@
 {
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/server.js" },
-    { "source": "/r/(.*)", "destination": "/server.js" },
-    { "source": "/bypass", "destination": "/server.js" },
-    { "source": "/health", "destination": "/server.js" }
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "/server.js" }
   ]
 }
