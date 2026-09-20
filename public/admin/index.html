@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — LinkPro</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+  body{background:#0a0a0f;color:#e0e0e0;padding:16px;min-height:100vh}
+  h1{font-size:20px;background:linear-gradient(90deg,#ff005c,#ff9900);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px}
+  .card{background:#12121c;border:1px solid #1f1f2e;border-radius:14px;padding:14px;margin-bottom:12px}
+  .card h2{font-size:13px;color:#888;margin-bottom:8px}
+  .num{font-size:28px;font-weight:900;color:#00f260}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{padding:8px;text-align:left;border-bottom:1px solid #1f1f2e}
+  th{color:#666;font-weight:600}
+  td{font-family:monospace;color:#ccc}
+  td a{color:#00f260;text-decoration:none;word-break:break-all}
+  .del{padding:4px 8px;background:#ff005c;border:none;border-radius:6px;color:#fff;font-size:10px;cursor:pointer}
+  .refresh{padding:10px 16px;background:linear-gradient(90deg,#ff005c,#ff9900);border:none;border-radius:10px;color:#fff;font-weight:700;font-size:12px;cursor:pointer;margin-bottom:12px}
+</style>
+</head>
+<body>
+<h1>🔐 Admin Panel</h1>
+
+<div class="card">
+  <h2>Total Link</h2>
+  <div class="num" id="total">0</div>
+</div>
+
+<button class="refresh" onclick="load()">🔄 REFRESH</button>
+
+<div class="card">
+  <h2>Daftar Link</h2>
+  <table>
+    <thead>
+      <tr><th>Code</th><th>URL</th><th>Klik</th><th>Aksi</th></tr>
+    </thead>
+    <tbody id="list"></tbody>
+  </table>
+</div>
+
+<script>
+  async function load(){
+    const r = await fetch('/api/admin/list');
+    const j = await r.json();
+    document.getElementById('total').textContent = j.total;
+
+    const tb = document.getElementById('list');
+    tb.innerHTML = '';
+    if(!j.list.length){
+      tb.innerHTML = '<tr><td colspan="4" style="color:#666">Belum ada link</td></tr>';
+      return;
+    }
+    j.list.slice().reverse().forEach(item=>{
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><a href="/r/${item.code}" target="_blank">${item.code}</a></td>
+        <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${item.url}</td>
+        <td>${item.clicks}</td>
+        <td><button class="del" onclick="del('${item.code}')">🗑️</button></td>
+      `;
+      tb.appendChild(tr);
+    });
+  }
+
+  async function del(code){
+    if(!confirm('Hapus link ' + code + '?')) return;
+    await fetch('/api/admin/delete/' + code, { method:'DELETE' });
+    load();
+  }
+
+  load();
+</script>
+</body>
+</html>
