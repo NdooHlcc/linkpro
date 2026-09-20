@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mengalihkan...</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+  body{background:linear-gradient(135deg,#1a0033,#0f0c29,#000);color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+  .box{background:#12121c;border:1px solid #1f1f2e;border-radius:20px;padding:30px 24px;max-width:460px;width:100%;text-align:center}
+  h1{font-size:22px;background:linear-gradient(90deg,#ff005c,#ff9900);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+  .sub{color:#888;font-size:13px;margin-bottom:20px}
+  .timer{font-size:48px;font-weight:900;color:#00f260;margin:20px 0;font-family:monospace}
+  .bar{width:100%;height:6px;background:#1e1e2e;border-radius:6px;overflow:hidden;margin:14px 0}
+  .barFill{height:100%;background:linear-gradient(90deg,#00f260,#0575e6);width:0;transition:width 1s linear}
+  button{width:100%;padding:16px;margin-top:16px;border:none;border-radius:12px;background:linear-gradient(90deg,#00f260,#0575e6);color:#fff;font-weight:700;font-size:16px;cursor:pointer;opacity:.4;pointer-events:none;transition:.3s}
+  button.ready{opacity:1;pointer-events:auto}
+  .adbox{margin:16px 0;padding:20px;background:#0a0a12;border:1px dashed #1f1f2e;border-radius:12px;color:#555;font-size:12px}
+  a{color:#00f260}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>⏳ Mohon Tunggu</h1>
+  <div class="sub">Halaman akan terbuka otomatis</div>
+
+  <div class="timer" id="timer">5</div>
+  <div class="bar"><div class="barFill" id="barFill"></div></div>
+
+  <div class="adbox">
+    📢 <b>Slot Iklan</b><br>
+    (Tempel kode iklan kamu di sini)
+  </div>
+
+  <button id="goBtn" onclick="go()">🔓 BUKA SEKARANG</button>
+</div>
+
+<script>
+  const code = location.pathname.split('/').pop();
+  let count = 5;
+  const timer = document.getElementById('timer');
+  const barFill = document.getElementById('barFill');
+  const btn = document.getElementById('goBtn');
+
+  const iv = setInterval(()=>{
+    count--;
+    timer.textContent = count;
+    barFill.style.width = ((5-count)/5*100) + '%';
+    if(count <= 0){
+      clearInterval(iv);
+      timer.textContent = '✓';
+      btn.classList.add('ready');
+      btn.textContent = '🔓 BUKA SEKARANG';
+    }
+  }, 1000);
+
+  async function go(){
+    try{
+      const r = await fetch('/api/go/' + code);
+      const j = await r.json();
+      if(j.ok) location.href = j.url;
+      else alert('Link tidak ditemukan');
+    }catch(e){ alert('Gagal: ' + e.message); }
+  }
+</script>
+</body>
+</html>
