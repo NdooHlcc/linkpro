@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistik Link</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+  body{background:#0a0a0f;color:#e0e0e0;padding:20px;min-height:100vh}
+  .box{max-width:600px;margin:0 auto}
+  h1{font-size:22px;background:linear-gradient(90deg,#00f260,#0575e6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px}
+  .card{background:#12121c;border:1px solid #1f1f2e;border-radius:14px;padding:16px;margin-bottom:12px}
+  .card h2{font-size:13px;color:#888;margin-bottom:8px}
+  .num{font-size:32px;font-weight:900;color:#00f260}
+  .row{padding:8px 0;border-bottom:1px dashed #1f1f2e;font-size:12px}
+  .row:last-child{border:none}
+  .row .ip{color:#ff9900;font-family:monospace}
+  .row .ua{color:#888;font-size:11px;word-break:break-all}
+  a{color:#0575e6;text-decoration:none;font-size:13px}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>📊 Statistik Link</h1>
+  <div id="content">Loading...</div>
+  <a href="/">← Kembali</a>
+</div>
+
+<script>
+  const code = new URLSearchParams(location.search).get('code');
+  if(!code){ document.getElementById('content').textContent = 'Kode tidak ada'; }
+  else load();
+
+  async function load(){
+    const r = await fetch('/api/stats/' + code);
+    const j = await r.json();
+    if(!j.ok){ document.getElementById('content').textContent = 'Link tidak ditemukan'; return; }
+
+    const c = document.getElementById('content');
+    c.innerHTML = `
+      <div class="card">
+        <h2>Total Klik</h2>
+        <div class="num">${j.info.clicks}</div>
+      </div>
+      <div class="card">
+        <h2>Link Asli</h2>
+        <div style="font-size:12px;color:#00f260;word-break:break-all">${j.info.url}</div>
+      </div>
+      <div class="card">
+        <h2>Riwayat Klik</h2>
+        <div id="logs"></div>
+      </div>
+    `;
+
+    const logs = document.getElementById('logs');
+    if(!j.logs.length){ logs.innerHTML = '<div style="color:#666;font-size:12px">Belum ada klik</div>'; return; }
+
+    j.logs.slice().reverse().forEach(l=>{
+      const d = document.createElement('div');
+      d.className = 'row';
+      d.innerHTML = `
+        <div>🕐 ${new Date(l.t).toLocaleString()}</div>
+        <div class="ip">IP: ${l.ip}</div>
+        <div class="ua">UA: ${l.ua}</div>
+      `;
+      logs.appendChild(d);
+    });
+  }
+</script>
+</body>
+</html>
