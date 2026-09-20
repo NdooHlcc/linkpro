@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkPro — Shorten & Bypass</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+  body{background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+  .box{background:#12121c;border:1px solid #1f1f2e;border-radius:20px;padding:30px 24px;max-width:460px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  h1{font-size:28px;background:linear-gradient(90deg,#00f260,#0575e6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:8px}
+  .sub{text-align:center;color:#888;font-size:13px;margin-bottom:22px}
+  label{display:block;font-size:12px;color:#aaa;margin-bottom:6px;margin-top:14px}
+  input{width:100%;padding:12px;background:#0a0a12;border:1px solid #1f1f2e;border-radius:10px;color:#00f260;font-size:14px;outline:none}
+  input:focus{border-color:#00f260}
+  button{width:100%;padding:14px;margin-top:18px;border:none;border-radius:12px;background:linear-gradient(90deg,#00f260,#0575e6);color:#fff;font-weight:700;font-size:15px;cursor:pointer}
+  button:active{transform:scale(.98)}
+  .result{margin-top:18px;padding:14px;background:#0a0a12;border:1px solid #1f1f2e;border-radius:12px;display:none}
+  .result.show{display:block}
+  .result .row{margin-bottom:8px;font-size:13px}
+  .result .row b{color:#00f260}
+  .short{color:#00f260;word-break:break-all;font-size:13px;display:block;margin-top:4px}
+  .copy{margin-top:10px;padding:10px;background:#1e1e2e;border-radius:8px;color:#ccc;font-size:12px;text-align:center;cursor:pointer}
+  .stats-link{display:block;text-align:center;margin-top:16px;font-size:12px;color:#0575e6;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>🔗 LinkPro</h1>
+  <div class="sub">Shorten · Bypass · Track</div>
+
+  <label>URL Panjang</label>
+  <input id="url" placeholder="https://contoh.com/link-panjang" />
+
+  <label>Custom Slug (opsional)</label>
+  <input id="slug" placeholder="misal: promo123" />
+
+  <button onclick="shorten()">🚀 PENDERKAN</button>
+
+  <div class="result" id="result">
+    <div class="row">Link Pendek: <span class="short" id="shortOut">-</span></div>
+    <div class="copy" onclick="copyShort()">📋 Klik untuk copy</div>
+    <a class="stats-link" id="statLink" href="#" target="_blank">Lihat Statistik →</a>
+  </div>
+
+  <a class="stats-link" href="/admin" style="margin-top:22px">🔐 Admin Panel</a>
+</div>
+
+<script>
+  let lastShort = '';
+  async function shorten(){
+    const url = document.getElementById('url').value.trim();
+    const slug = document.getElementById('slug').value.trim();
+    if(!url) return alert('Isi URL dulu!');
+
+    const r = await fetch('/api/shorten', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ url, slug })
+    });
+    const j = await r.json();
+    if(!j.ok) return alert(j.error || 'Gagal');
+
+    lastShort = j.short;
+    document.getElementById('shortOut').textContent = j.short;
+    document.getElementById('statLink').href = '/stat.html?code=' + j.code;
+    document.getElementById('result').classList.add('show');
+  }
+
+  function copyShort(){
+    navigator.clipboard.writeText(lastShort);
+    alert('Tersalin: ' + lastShort);
+  }
+</script>
+</body>
+</html>
