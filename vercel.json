@@ -1,16 +1,9 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "server.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/server.js" },
-    { "src": "/r/(.*)", "dest": "/server.js" },
-    { "src": "/bypass", "dest": "/server.js" },
-    { "src": "/health", "dest": "/server.js" },
-    { "src": "/(.*)", "dest": "/public/$1" }
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/server.js" },
+    { "source": "/r/(.*)", "destination": "/server.js" },
+    { "source": "/bypass", "destination": "/server.js" },
+    { "source": "/health", "destination": "/server.js" }
   ]
 }
